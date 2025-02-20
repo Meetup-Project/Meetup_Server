@@ -1,15 +1,25 @@
 package com.work.meetup.dto;
 
-import lombok.AllArgsConstructor;
+import com.work.meetup.domain.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class UserDto {
     private String email;
-    private String username;
+    private String profile;
+    private String provider;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    public UserDto(User user) {
+        this.email = user.getEmail();
+        this.profile = user.getProfile();
+        this.provider = user.getProvider();
+        this.createdAt = user.getCreatedAt();
+        this.updatedAt = user.getUpdatedAt();
+    }
 }

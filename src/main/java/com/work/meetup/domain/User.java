@@ -1,26 +1,16 @@
 package com.work.meetup.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import java.util.Collections;
-import java.util.Collection;
-import lombok.NoArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
+import java.time.LocalDateTime;
 
-
-
-
-@Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 @Builder
 @Table(name = "users")
-public class User implements UserDetails {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,53 +22,45 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false) // username을 NULL 허용하지 않음
     private String username;
 
-    @Enumerated(EnumType.STRING)
-    private AuthProvider provider;
+    @Column(nullable = false)
+    private String provider; // 자체 회원가입(LOCAL) or OAuth2 (GOOGLE, NAVER, KAKAO)
 
-//    @Column(length = 500)
-//    private String refreshToken;
+    @Column
+    private String profile; // 프로필 이미지 URL (nullable)
 
-    public enum AuthProvider {
-        GOOGLE, NAVER, KAKAO, LOCAL
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt; // 계정 생성 날짜
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt; // 마지막 수정 날짜
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList(); // 권한이 필요하면 수정 가능
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+    //  새로운 생성자 (생성 시간 자동 설정)
+    public User(String email, String password, String username, String provider, String profile) {
+        this.email = email;
+        this.password = password != null ? password : "";
+        this.username = username;
+        this.provider = provider;
+        this.profile = profile;
+        this.createdAt = LocalDateTime.now(); //  생성 시 자동 설정
+        this.updatedAt = LocalDateTime.now(); //  생성 시 자동 설정
     }
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return email; // Spring Security는 username을 email로 사용 가능
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true; // 계정 만료 여부 (true: 만료되지 않음)
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true; // 계정 잠금 여부 (true: 잠기지 않음)
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true; // 비밀번호 만료 여부 (true: 만료되지 않음)
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true; // 계정 활성화 여부 (true: 활성화됨)
+    //  업데이트 시간 갱신 메서드
+    public void updateProfile(String profile) {
+        this.profile = profile;
+        this.updatedAt = LocalDateTime.now();
     }
 }
-

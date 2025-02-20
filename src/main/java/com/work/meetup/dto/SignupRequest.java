@@ -1,18 +1,20 @@
 package com.work.meetup.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class SignupRequest {
-    @NotBlank
+    private String email;
+    private String password;
+    private String profile; // 프로필 사진 URL (선택)
     private String username;
 
-    @Email
-    @NotBlank
-    private String email;
-
-    @NotBlank
-    private String password;
+    public SignupRequest(String email, String password, String profile, String username) {
+        this.email = email;
+        this.password = password;
+        this.profile = profile;
+        this.username =username;
+    }
 }

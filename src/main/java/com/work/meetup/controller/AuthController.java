@@ -8,30 +8,51 @@ import com.work.meetup.dto.LoginRequest;
 import com.work.meetup.dto.TokenResponse;
 import com.work.meetup.service.AuthService;
 import com.work.meetup.service.JwtService;
-
+import org.springframework.http.ResponseEntity;
+import java.util.Map;
+import com.work.meetup.service.CustomOAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @RestController
 @RequestMapping("/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
     private final JwtService jwtService;
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    public AuthController(CustomOAuth2UserService customOAuth2UserService,JwtService jwtService, AuthService authService) {
+        this.customOAuth2UserService = customOAuth2UserService;
+        this.jwtService = jwtService;
+        this.authService = authService;
+    }
+
 
     @PostMapping("/signup")
-    public String registerUser(@RequestBody SignupRequest request) {
-        return authService.registerUser(request);
+    public ResponseEntity<String> registerUser(@RequestBody SignupRequest request) {
+        return ResponseEntity.ok(authService.registerUser(request));
     }
 
-    // ✅ 로그인 (POST /auth/login) → JWT 발급
     @PostMapping("/login")
-    public TokenResponse login(@RequestBody LoginRequest request) {
-        return authService.login(request);
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 
-    // ✅ 리프레시 토큰을 이용한 JWT 재발급 (POST /auth/refresh)
+    //  리프레시 토큰을 이용한 JWT 재발급 (POST /auth/refresh)
     @PostMapping("/refresh")
-    public TokenResponse refresh(@RequestParam String refreshToken) {
-        return jwtService.refreshToken(refreshToken);
+    public ResponseEntity<TokenResponse> refresh(@RequestBody Map<String, String> body) {
+        String refreshToken = body.get("refreshToken");
+
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        TokenResponse newTokens = jwtService.refreshToken(refreshToken);
+        return ResponseEntity.ok(newTokens);
+    }
+
+    @PostMapping("/oauth2/login")
+    public TokenResponse oauth2Login(@RequestBody OAuth2User oAuth2User) {
+        return customOAuth2UserService.processOAuth2User(oAuth2User);
     }
 }
