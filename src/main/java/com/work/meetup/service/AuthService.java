@@ -3,13 +3,10 @@ package com.work.meetup.service;
 import com.work.meetup.config.JwtUtil;
 import com.work.meetup.domain.User;
 import com.work.meetup.dto.LoginRequest;
-import com.work.meetup.dto.SignupRequest;
 import com.work.meetup.dto.TokenResponse;
 import com.work.meetup.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -25,38 +22,39 @@ public class AuthService {
         this.jwtUtil = jwtUtil;
     }
 
-    public String registerUser(SignupRequest request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            return "이미 가입된 이메일입니다.";
+    //  자체 회원가입
+    public User registerUser(String email, String password, String name) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("이미 존재하는 이메일입니다.");
         }
 
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .username(request.getUsername())
-                .profile(request.getProfile())
-                .provider("LOCAL")
-                .createdAt(LocalDateTime.now()) //  추가 안전 장치
-                .updatedAt(LocalDateTime.now()) //  추가 안전 장치
+        User newUser = User.builder()
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .name(name)
+                .provider("LOCAL") // 자체 회원가입은 "LOCAL"
+                .role("USER")
                 .build();
 
-        userRepository.save(user);
-        return "회원가입 성공";
+        return userRepository.save(newUser);
     }
 
-
-
+    //  자체 로그인 (이메일 & 비밀번호 검증)
     public TokenResponse login(LoginRequest request) {
-        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("존재하지 않는 이메일입니다."));
 
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                String accessToken = jwtUtil.generateAccessToken(user.getEmail(), "USER");
-                String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
-                return new TokenResponse(accessToken, refreshToken);
-            }
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
-        throw new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다.");
+
+        return generateTokenResponse(user);
+    }
+
+    //  JWT 생성 (OAuth & 자체 로그인 통합)
+    private TokenResponse generateTokenResponse(User user) {
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getRole(), user.getId());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+        return new TokenResponse(accessToken, refreshToken);
     }
 }

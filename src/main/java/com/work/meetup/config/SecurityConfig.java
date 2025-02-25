@@ -42,20 +42,23 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 적용
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/oauth2/**").permitAll()
+                        .requestMatchers("/user/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorize"))
                         .redirectionEndpoint(redir -> redir.baseUri("/oauth2/callback/*"))
-                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService)) //  OAuth2UserService 등록
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
 
     @Bean

@@ -5,6 +5,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter //  필요 시 추가 (비밀번호 변경 등을 위해)
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -19,23 +20,26 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = true) //  OAuth 유저는 비밀번호가 없을 수 있음
     private String password;
 
-    @Column(nullable = false) // username을 NULL 허용하지 않음
-    private String username;
+    @Column(nullable = false)
+    private String name; //  기존 "username" → "name"으로 변경 (OAuth와 일관성 유지)
 
     @Column(nullable = false)
-    private String provider; // 자체 회원가입(LOCAL) or OAuth2 (GOOGLE, NAVER, KAKAO)
+    private String provider; // LOCAL, GOOGLE, NAVER, KAKAO
 
     @Column
     private String profile; // 프로필 이미지 URL (nullable)
 
+    @Column(nullable = false)
+    private String role; //  "USER", "ADMIN" 등 역할 구분
+
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt; // 계정 생성 날짜
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt; // 마지막 수정 날짜
+    private LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
@@ -47,18 +51,26 @@ public class User {
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-    //  새로운 생성자 (생성 시간 자동 설정)
-    public User(String email, String password, String username, String provider, String profile) {
+
+    //  새로운 유저 생성 시 사용하는 생성자
+    public User(String email, String password, String name, String provider, String profile, String role) {
         this.email = email;
-        this.password = password != null ? password : "";
-        this.username = username;
+        this.password = password; //  OAuth 유저는 null 허용
+        this.name = name;
         this.provider = provider;
         this.profile = profile;
-        this.createdAt = LocalDateTime.now(); //  생성 시 자동 설정
-        this.updatedAt = LocalDateTime.now(); //  생성 시 자동 설정
+        this.role = role;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    //  업데이트 시간 갱신 메서드
+    //  비밀번호 변경 메서드
+    public void setPassword(String password) {
+        this.password = password;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    //  프로필 업데이트 메서드
     public void updateProfile(String profile) {
         this.profile = profile;
         this.updatedAt = LocalDateTime.now();

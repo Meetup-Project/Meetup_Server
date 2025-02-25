@@ -21,10 +21,11 @@ public class JwtUtil {
         this.refreshExpirationTime = refreshExpirationTime;
     }
 
-    public String generateAccessToken(String email, String role) {
+    public String generateAccessToken(String email, String role,Long userId) {
         return JWT.create()
                 .withSubject(email)
                 .withClaim("role", role)
+                .withClaim("userId", userId)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
                 .sign(algorithm);
@@ -47,6 +48,18 @@ public class JwtUtil {
                     .getSubject(); // 정상적인 토큰이면 이메일 반환
         } catch (Exception e) {
             throw new RuntimeException("Invalid JWT token: " + e.getMessage());
+        }
+    }
+
+    public boolean isTokenExpired(String token) {
+        try {
+            Date expiration = JWT.require(algorithm)
+                    .build()
+                    .verify(token)
+                    .getExpiresAt();
+            return expiration.before(new Date());
+        } catch (Exception e) {
+            return true; // 토큰 검증 실패 시 만료된 것으로 간주
         }
     }
 }
