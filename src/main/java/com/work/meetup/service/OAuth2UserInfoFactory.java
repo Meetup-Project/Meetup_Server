@@ -1,7 +1,7 @@
 package com.work.meetup.service;
 
 import java.util.Map;
-import com.work.meetup.dto.OAuth2UserInfo;
+
 import com.work.meetup.provider.*;
 
 public class OAuth2UserInfoFactory {

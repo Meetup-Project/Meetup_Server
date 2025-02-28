@@ -1,7 +1,6 @@
 package com.work.meetup.security;
 
 import com.work.meetup.domain.User;
-import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,18 +31,14 @@ public class CustomOAuth2User implements OAuth2User, UserDetails {
         return user.getName();
     }
 
-//    //  추가: JWT 토큰 반환 메서드
-//    public String getToken() {
-//        return token;
-//    }
+    //  추가: JWT 토큰 반환 메서드
+    public String getToken() {
+        return token;
+    }
 
     public String getEmail() {
         return user.getEmail();
     }
-
-//    public String getProfileImage() {
-//        return user.getProfileImage();
-//    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -8,13 +8,13 @@ import lombok.NoArgsConstructor;
 public class SignupRequest {
     private String email;
     private String password;
-    private String profile; // 프로필 사진 URL (선택)
-    private String username;
+//    private String profile; // 프로필 사진 URL (선택)
+    private String name;
 
-    public SignupRequest(String email, String password, String profile, String username) {
+    public SignupRequest(String email, String password, String username) {
         this.email = email;
         this.password = password;
-        this.profile = profile;
-        this.username =username;
+//        this.profile = profile;
+        this.name =username;
     }
 }

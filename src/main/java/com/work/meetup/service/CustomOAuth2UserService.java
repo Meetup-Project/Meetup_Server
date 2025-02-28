@@ -3,8 +3,8 @@ package com.work.meetup.service;
 import com.work.meetup.config.JwtUtil;
 import com.work.meetup.domain.User;
 import com.work.meetup.repository.UserRepository;
-import com.work.meetup.dto.OAuth2UserInfo;
 import com.work.meetup.security.CustomOAuth2User;
+import com.work.meetup.provider.OAuth2UserInfo;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -34,17 +34,35 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Optional<User> existingUser = userRepository.findByEmail(userInfo.getEmail());
         User user = existingUser.orElseGet(() -> registerOAuthUser(provider, userInfo));
 
+        //  CustomOAuth2User를 OAuth2User 타입으로 반환
         return new CustomOAuth2User(user, attributes, jwtUtil.generateAccessToken(user.getEmail(), user.getRole(), user.getId()));
     }
 
     private User registerOAuthUser(String provider, OAuth2UserInfo userInfo) {
-        return userRepository.save(new User(
-                userInfo.getEmail(),
-                null,
-                userInfo.getName(),
-                userInfo.getProfileImage(),
-                provider.toUpperCase(),
-                "USER"
-        ));
+        String email = userInfo.getEmail();
+
+        //  Google은 이메일 앞부분을 username으로 설정
+        //  Naver/Kakao는 제공된 name을 username으로 설정
+        String username;
+        if ("google".equalsIgnoreCase(provider)) {
+            username = (email != null && !email.isEmpty()) ? email.split("@")[0] : "google_user";
+        } else {
+            username = (userInfo.getName() != null && !userInfo.getName().isEmpty())
+                    ? userInfo.getName()
+                    : "user" + System.currentTimeMillis(); // 네이버에서 name이 없을 경우 대비
+        }
+
+        //  name이 null이면 username을 name으로 설정
+        String name = (userInfo.getName() == null || userInfo.getName().isEmpty()) ? username : userInfo.getName();
+
+        return userRepository.save(User.builder()
+                .email(email)
+                .username(username) //  username은 항상 존재
+                .name(name) //  name이 항상 존재
+                .password("") //  OAuth 사용자는 비밀번호 필요 없음
+                .provider(provider.toUpperCase())
+                .role("USER")
+                .build());
     }
+
 }

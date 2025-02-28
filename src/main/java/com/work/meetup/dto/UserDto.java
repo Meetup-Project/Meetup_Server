@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class UserDto {
     private String email;
-    private String profile;
+//    private String profile;
     private String provider;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public UserDto(User user) {
         this.email = user.getEmail();
-        this.profile = user.getProfile();
+//        this.profile = user.getProfile();
         this.provider = user.getProvider();
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();

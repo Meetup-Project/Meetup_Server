@@ -1,6 +1,5 @@
 package com.work.meetup.provider;
 
-import com.work.meetup.dto.OAuth2UserInfo;
 import java.util.Map;
 
 public class KakaoUserInfo extends OAuth2UserInfo {

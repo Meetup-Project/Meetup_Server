@@ -51,7 +51,7 @@ public class JwtUtil {
         }
     }
 
-    public boolean isTokenExpired(String token) {
+    public boolean isRefreshTokenValid(String token) {
         try {
             Date expiration = JWT.require(algorithm)
                     .build()

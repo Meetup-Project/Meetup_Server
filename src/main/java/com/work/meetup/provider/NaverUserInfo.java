@@ -2,9 +2,6 @@ package com.work.meetup.provider;
 
 import java.util.Map;
 
-
-import com.work.meetup.dto.OAuth2UserInfo;
-
 public class NaverUserInfo extends OAuth2UserInfo {
     public NaverUserInfo(Map<String, Object> attributes) {
         super(attributes);

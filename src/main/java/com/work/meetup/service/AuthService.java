@@ -57,4 +57,18 @@ public class AuthService {
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
         return new TokenResponse(accessToken, refreshToken);
     }
+
+    //Refresh Token인지 확인 (Refresh Token의 만료시간 검증)
+    public TokenResponse refreshAccessToken(String refreshToken) {
+        if (!jwtUtil.isRefreshTokenValid(refreshToken)) {
+            throw new RuntimeException("유효하지 않은 Refresh Token입니다.");
+        }
+
+        String email = jwtUtil.validateToken(refreshToken);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+        String newAccessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getRole(), user.getId());
+        return new TokenResponse(newAccessToken, refreshToken);
+    }
 }

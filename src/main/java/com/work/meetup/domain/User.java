@@ -20,6 +20,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = true) // ✅ username 필수값 유지
+    private String username;
+
     @Column(nullable = true) //  OAuth 유저는 비밀번호가 없을 수 있음
     private String password;
 
@@ -29,8 +32,8 @@ public class User {
     @Column(nullable = false)
     private String provider; // LOCAL, GOOGLE, NAVER, KAKAO
 
-    @Column
-    private String profile; // 프로필 이미지 URL (nullable)
+//    @Column
+//    private String profile; // 프로필 이미지 URL (nullable)
 
     @Column(nullable = false)
     private String role; //  "USER", "ADMIN" 등 역할 구분
@@ -53,15 +56,13 @@ public class User {
     }
 
     //  새로운 유저 생성 시 사용하는 생성자
-    public User(String email, String password, String name, String provider, String profile, String role) {
+    public User(String email, String username, String password, String name, String provider, String role) {
         this.email = email;
-        this.password = password; //  OAuth 유저는 null 허용
+        this.username = username;
+        this.password = password;
         this.name = name;
         this.provider = provider;
-        this.profile = profile;
         this.role = role;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
     //  비밀번호 변경 메서드
@@ -72,7 +73,7 @@ public class User {
 
     //  프로필 업데이트 메서드
     public void updateProfile(String profile) {
-        this.profile = profile;
+//        this.profile = profile;
         this.updatedAt = LocalDateTime.now();
     }
 }
