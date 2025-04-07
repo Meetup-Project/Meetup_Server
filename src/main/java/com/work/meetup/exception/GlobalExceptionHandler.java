@@ -1,5 +1,8 @@
 package com.work.meetup.exception;
 
+import com.work.meetup.exception.customException.ErrorCode;
+import com.work.meetup.exception.customException.ErrorResponse;
+import com.work.meetup.exception.customException.GlobalException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,5 +33,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<String> handleJwtException(ResponseStatusException ex) {
         return ResponseEntity.status(ex.getStatusCode()).body(ex.getReason());
+    }
+
+    @ExceptionHandler(GlobalException.class)
+    public ResponseEntity<ErrorResponse> customExceptionHandling(GlobalException e) {
+        final ErrorCode errorCode = e.getErrorCode();
+
+        return new ResponseEntity<>(
+                ErrorResponse.builder()
+                        .status(errorCode.getHttpStatus())
+                        .message(errorCode.getMessage())
+                        .build(),
+                HttpStatus.valueOf(errorCode.getHttpStatus())
+        );
     }
 }
