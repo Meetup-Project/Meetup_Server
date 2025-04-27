@@ -1,6 +1,6 @@
 package com.work.meetup.domain.auth.service;
 
-import com.work.meetup.global.security.config.JwtUtil;
+import com.work.meetup.global.security.jwt.JwtUtil;
 import com.work.meetup.domain.user.entity.User;
 import com.work.meetup.domain.auth.dto.LoginRequest;
 import com.work.meetup.domain.auth.dto.TokenResponse;

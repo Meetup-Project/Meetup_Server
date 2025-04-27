@@ -1,6 +1,6 @@
 package com.work.meetup.global.security.oauth;
 
-import com.work.meetup.global.security.config.JwtUtil;
+import com.work.meetup.global.security.jwt.JwtUtil;
 import com.work.meetup.domain.user.entity.User;
 import com.work.meetup.domain.user.repository.UserRepository;
 import com.work.meetup.global.security.oauth.provider.OAuth2UserInfo;

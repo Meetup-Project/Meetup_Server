@@ -1,6 +1,7 @@
 package com.work.meetup.global.security.config;
 
 
+import com.work.meetup.global.security.jwt.JwtAuthenticationFilter;
 import com.work.meetup.global.security.oauth.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

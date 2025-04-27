@@ -1,4 +1,4 @@
-package com.work.meetup.global.security.config;
+package com.work.meetup.global.security.jwt;
 
 import com.work.meetup.domain.user.service.UserService;
 import jakarta.servlet.FilterChain;
